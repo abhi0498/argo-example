@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: last-sync-time
+  namespace: default
+data:
+  lastSync: "not-synced-yet"

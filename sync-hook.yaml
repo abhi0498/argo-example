@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pre-sync-hook
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pre-sync-hook
+  template:
+    metadata:
+      labels:
+        app: pre-sync-hook
+    spec:
+      serviceAccountName: sync-hook-sa # We'll create this
+      containers:
+        - name: kubectl
+          image: bitnami/kubectl
+          command:
+            - "sh"
+            - "-c"
+            - |
+              CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+              kubectl patch configmap last-sync-time -n default --type=merge -p "{\"data\":{\"lastSync\":\"$CURRENT_TIME\"}}"
