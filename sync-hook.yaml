@@ -3,8 +3,7 @@ kind: Job
 metadata:
   generateName: sync-hook-
   annotations:
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/hook: PreSync
 spec:
   template:
     spec:
@@ -15,17 +14,5 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              set -ex
-              CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
-              echo "Starting PostSync hook at $CURRENT_TIME"
-
-              # Update only the lastSync field
-              kubectl patch configmap last-sync-time -n default --type=strategic --patch "
-              data:
-                lastSync: \"$CURRENT_TIME\"
-              "
-
-              # Verify
-              echo "Updated ConfigMap:"
-              kubectl get configmap last-sync-time -n default -o yaml
+              kubectl create configmap sync-status --from-literal=lastSync="$(date)" -n default --dry-run=client -o yaml | kubectl apply -f -
       restartPolicy: Never
