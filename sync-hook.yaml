@@ -7,7 +7,6 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: sync-hook-sa
       containers:
         - name: kubectl
           image: bitnami/kubectl:latest
