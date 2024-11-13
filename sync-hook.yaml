@@ -21,8 +21,9 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              set -e
-              echo "Starting PreSync hook..."
-              echo "Attempting to patch ConfigMap..."
-              kubectl patch configmap last-sync-time -n default --type merge -p "{\"data\":{\"lastSync\":\"$(date)\"}}"
-              echo "ConfigMap patched successfully"
+              set -ex
+              CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+              echo "Starting PreSync hook at $CURRENT_TIME"
+              kubectl patch configmap last-sync-time -n default --type=merge -p "{\"data\":{\"lastSync\":\"$CURRENT_TIME\"}}"
+              echo "Verifying update..."
+              kubectl get configmap last-sync-time -n default -o yaml
