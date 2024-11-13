@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: Job
 metadata:
   name: pre-sync-hook
   annotations:
@@ -14,7 +14,7 @@ spec:
       labels:
         app: pre-sync-hook
     spec:
-      serviceAccountName: sync-hook-sa
+      # serviceAccountName: sync-hook-sa
       containers:
         - name: kubectl
           image: bitnami/kubectl:latest
