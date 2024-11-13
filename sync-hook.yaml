@@ -4,14 +4,27 @@ metadata:
   generateName: sync-hook-
   annotations:
     argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   template:
     spec:
+      serviceAccountName: sync-hook-sa
       containers:
         - name: kubectl
           image: bitnami/kubectl:latest
-          command: ["/bin/sh", "-c"]
-          args:
+          command:
+            - /bin/sh
+            - -c
             - |
-              kubectl create configmap sync-status --from-literal=lastSync="$(date)" -n default --dry-run=client -o yaml | kubectl apply -f -
+              echo "Starting hook..."
+              echo "Current ConfigMap state:"
+              kubectl get configmap last-sync-time -n default -o yaml || true
+
+              echo "\nAttempting to patch..."
+              kubectl patch configmap last-sync-time -n default --type=merge -p "{\"data\":{\"lastSync\":\"$(date)\"}}"
+
+              echo "\nFinal ConfigMap state:"
+              kubectl get configmap last-sync-time -n default -o yaml
+
+              echo "\nHook completed"
       restartPolicy: Never
