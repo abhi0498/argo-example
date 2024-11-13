@@ -3,5 +3,8 @@ kind: ConfigMap
 metadata:
   name: last-sync-time
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
 data:
   lastSync: "not-synced-yet"
