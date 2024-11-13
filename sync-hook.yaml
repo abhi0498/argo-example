@@ -1,20 +1,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: pre-sync-hook
+  generateName: pre-sync-hook-
   annotations:
     argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: pre-sync-hook
   template:
-    metadata:
-      labels:
-        app: pre-sync-hook
     spec:
-      # serviceAccountName: sync-hook-sa
+      serviceAccountName: sync-hook-sa
       containers:
         - name: kubectl
           image: bitnami/kubectl:latest
@@ -25,5 +19,5 @@ spec:
               CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
               echo "Starting PreSync hook at $CURRENT_TIME"
               kubectl patch configmap last-sync-time -n default --type=merge -p "{\"data\":{\"lastSync\":\"$CURRENT_TIME\"}}"
-              echo "Verifying update..."
-              kubectl get configmap last-sync-time -n default -o yaml
+              echo "Hook completed successfully"
+      restartPolicy: Never
