@@ -3,5 +3,11 @@ kind: ConfigMap
 metadata:
   name: last-sync-time
   namespace: default
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+    # This tells Argo CD to ignore the lastSync field during syncs
+    argocd.argoproj.io/sync-options: RespectIgnoreDifferences=true
+  labels:
+    app.kubernetes.io/instance: sync-hook-example
 data:
-  lastSync: "not-synced-yet"
+  lastSync: "not-set"

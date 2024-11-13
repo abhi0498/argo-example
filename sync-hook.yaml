@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: post-sync-hook-
+  generateName: sync-hook-
   annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
@@ -19,12 +19,13 @@ spec:
               CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
               echo "Starting PostSync hook at $CURRENT_TIME"
 
-              # Wait a moment for sync to complete
-              sleep 2
+              # Update only the lastSync field
+              kubectl patch configmap last-sync-time -n default --type=strategic --patch "
+              data:
+                lastSync: \"$CURRENT_TIME\"
+              "
 
-              # Update the ConfigMap
-              kubectl patch configmap last-sync-time -n default --type=merge -p "{\"data\":{\"lastSync\":\"$CURRENT_TIME\"}}"
-
-              # Verify the update
+              # Verify
+              echo "Updated ConfigMap:"
               kubectl get configmap last-sync-time -n default -o yaml
       restartPolicy: Never
