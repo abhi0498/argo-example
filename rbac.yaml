@@ -13,7 +13,7 @@ metadata:
   name: sync-hook-configmap-updater
 subjects:
   - kind: ServiceAccount
-    name: default
+    name: sync-hook-sa
     namespace: default
 roleRef:
   kind: ClusterRole

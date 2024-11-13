@@ -8,7 +8,7 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: default
+      serviceAccountName: sync-hook-sa
       containers:
         - name: kubectl
           image: bitnami/kubectl:latest
@@ -16,15 +16,5 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Starting hook..."
-              echo "Current ConfigMap state:"
-              kubectl get configmap last-sync-time -n default -o yaml || true
-
-              echo "\nAttempting to patch..."
               kubectl patch configmap last-sync-time -n default --type=merge -p "{\"data\":{\"lastSync\":\"$(date)\"}}"
-
-              echo "\nFinal ConfigMap state:"
-              kubectl get configmap last-sync-time -n default -o yaml
-
-              echo "\nHook completed"
       restartPolicy: Never
